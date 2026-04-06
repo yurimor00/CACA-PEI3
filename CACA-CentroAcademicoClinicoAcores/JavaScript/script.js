@@ -1,3 +1,6 @@
+import { Evento } from "./evento.js"
+import { startDB, addEventDB, addSubscritorDB } from "./database.js"
+let db
 document.addEventListener('DOMContentLoaded', () => {
     /*
     DOM ELEMENTS & CONSTANTS
@@ -25,12 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const mensagemPreDefinida = {
         ajuda: 'Boa tarde, gostava de pedir ajuda com...',
         evento: 'Boas, tenho interesse em saber mais informações sobre o evento...',
-        marcacao: 'Ola, quero marcar uma consulta no dia...',
-        ensino: 'Ola, gostaria de saber mais sobre o vosso programa de ensino'
+        marcacao: 'Olá, quero marcar uma consulta no dia...',
+        ensino: 'Olá, gostaria de saber mais sobre o vosso programa de ensino'
     }
 
     //Back to Top Button
     const toTopbtn = document.getElementById("to-top")
+
+    // Gestão de Eventos (Formulário Admin) Constants
+    const formGestaoEvento = document.getElementById("form-gestao-evento")
+    const inputGestaoTitulo = document.getElementById("evento-titulo")
+    const inputGestaoDescricao = document.getElementById("evento-descricao")
+    const inputGestaoData = document.getElementById("evento-data")
+    const inputGestaoHora = document.getElementById("evento-hora")
+    const inputGestaoLocal = document.getElementById("evento-local")
+    const feedbackGestao = document.getElementById("gestao-feedback")
     
     //Carousel Constants
     const track = document.getElementById("carousel-track")
@@ -66,12 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventPrevBtn = document.getElementById('event-prev')
     const eventNextBtn = document.getElementById('event-next')
 
+
+
     /*
     STATE VARIABLES
     */
     let indiceAtual = 1
     let isTransitioning = false
-
     /* 
       FUNCTIONS
      */
@@ -83,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     //Checks if each user input is correct, if not correct, makes the border of the incorrect input red
-    function validadeForm(event) {
+    async function validadeForm(event) {
         event.preventDefault()
     //Here all border colors and the feedback messages are resetted 
         nomeF.style.border = ''
@@ -135,12 +148,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error === true) {
             mensagemFeedback.textContent = "Por favor, corrija os campos a vermelho."
             mensagemFeedback.style.color = "red"
-        } else {//If error is not true, shows sucecs message and makes the text color green to show correct submission by the user
-            mensagemFeedback.textContent = "Sucesso! A sua inscrição foi enviada."
-            mensagemFeedback.style.color = "#29B89E" 
-            //Resets the form only when there are no errors
-            form.reset()
+        } else {
+            try {
+                const novoSubscritor = {
+                    nome: nomeF.value.trim(),
+                    telemovel: numeroInserido,
+                    email: emailF.value.trim()
+                }
+                // Gravar na IndexedDB
+                const msgBaseDados = await addSubscritorDB(db, novoSubscritor);
+
+                // Feedback visual de sucesso
+                mensagemFeedback.textContent = "Sucesso! A sua inscrição foi enviada e guardada.";
+                mensagemFeedback.style.color = "#29B89E";
+                
+                form.reset()
+                dropdownAssuntoSelected.textContent = "Assunto"
+            } catch (erro) {
+                console.error(erro)
+                mensagemFeedback.textContent = erro
+                mensagemFeedback.style.color = "orange"
+            }
         }
+
     }
     //--- Dropdown do indicativo ---
     dropdownSelectedIndicativo.addEventListener('click', function(event) {
@@ -366,14 +396,56 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener("scroll", scrollPos)
     toTopbtn.addEventListener("click", voltarAoTopo)
     themeToggleBtn.addEventListener('click', toggleTheme)
-    headerBtn.addEventListener('click', toggleMenu);
+    headerBtn.addEventListener('click', toggleMenu)
     
     navItems.forEach(link => {
         link.addEventListener('click', () => {
-            menuLinks.classList.remove('active');
-        });
-    });
+            menuLinks.classList.remove('active')
+        })
+    })
     form.addEventListener("submit", validadeForm)
+        // Listener do Formulário de Gestão de Eventos
+    if (formGestaoEvento) {
+        formGestaoEvento.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Impede o recarregamento da página
+
+            // Limpa mensagens anteriores
+            feedbackGestao.textContent = ""
+            feedbackGestao.style.color = "initial"
+
+            // Cria o objeto Evento com a classe
+            const novoEvento = new Evento(
+                inputGestaoTitulo.value.trim(),
+                inputGestaoDescricao.value.trim(),
+                inputGestaoData.value,
+                inputGestaoHora.value,
+                inputGestaoLocal.value.trim()
+            );
+
+            try {
+                if(!db){
+                    throw new Error("Base de dados não está pronta. Tente de novo.")
+                }
+
+                // Guarda o evento na IndexedDB
+                const mensagem = await addEventDB(db, novoEvento)
+                
+                // Feedback visual de sucesso
+                feedbackGestao.textContent = "Sucesso: " + mensagem
+                feedbackGestao.style.color = "green"
+                
+                formGestaoEvento.reset()
+
+                // dps vai ter função para atualizar o carrossel
+                // atualizarCarrossel(); 
+
+            } catch (erro) {
+                console.error(erro);
+                feedbackGestao.textContent = "Erro ao guardar: " + erro.message;
+                feedbackGestao.style.color = "red";
+            }
+        });
+    }
 
     
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
@@ -382,3 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 })
+
+async function startApp() {
+    try {
+        db = await startDB()
+        console.log("Base de dados pronta")
+        //const newEvent = new Evento("Consulta","Análises de rotina","17/04/2026","7:30","Ponta Delgada")
+        //const message = await addEventDB(db, newEvent)
+        //console.log(message)
+    } catch (error){
+        console.error(error)  
+    }    
+}
+window.addEventListener("load", startApp)
