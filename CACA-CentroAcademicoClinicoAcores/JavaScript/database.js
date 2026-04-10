@@ -17,39 +17,50 @@ export function startDB() {
         };
 
         request.onsuccess = (evento) => {
-            resolve(evento.target.result); // retorna à bd
+            resolve(evento.target.result) // retorna à bd
         };
 
         request.onerror = (evento) => {
-            reject("Erro ao abrir a base de dados: " + evento.target.errorCode);
-        };
-    });
+            reject("Erro ao abrir a base de dados: " + evento.target.errorCode)
+        }
+    })
 }
 
 
 // add Evento à base de dados
 export function addEventDB(db, evento) {
     return new Promise((resolve, reject) => {
-        const transacao = db.transaction(["eventos"], "readwrite");
-        const store = transacao.objectStore("eventos");
+        const transacao = db.transaction(["eventos"], "readwrite")
+        const store = transacao.objectStore("eventos")
         
-        const request = store.add(evento);
+        const request = store.add(evento)
 
-        request.onsuccess = () => resolve("Evento adicionado com sucesso!");
-        request.onerror = () => reject("Erro ao adicionar evento à base de dados.");
-    });
+        request.onsuccess = () => resolve("Evento adicionado com sucesso!")
+        request.onerror = () => reject("Erro ao adicionar evento à base de dados.")
+    })
 }
 
 
 // add subscritor à base de dados
 export function addSubscritorDB(db, subscritor) {
     return new Promise((resolve, reject) => {
-        const transacao = db.transaction(["subscritores"], "readwrite");
-        const store = transacao.objectStore("subscritores");
+        const transacao = db.transaction(["subscritores"], "readwrite")
+        const store = transacao.objectStore("subscritores")
         
-        const request = store.add(subscritor); // erro se o email já existir
+        const request = store.add(subscritor) // erro se o email já existir
 
-        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!");
-        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.");
-    });
+        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!")
+        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.")
+    })
+}
+
+export function getEventosDB(db) {
+    return new Promise((resolve, reject) => {
+        const transacao = db.transaction(["eventos"], "readonly")
+        const store = transacao.objectStore("eventos")
+        const request = store.getAll()
+
+        request.onsuccess = (evento) => resolve(evento.target.result) // retorna a lista de eventos
+        request.onerror = () => reject("Erro ao obter eventos da base de dados.")
+    })
 }

@@ -1,5 +1,5 @@
 import { Evento } from "./evento.js"
-import { startDB, addEventDB, addSubscritorDB } from "./database.js"
+import { startDB, addEventDB, addSubscritorDB, getEventosDB } from "./database.js"
 let db
 document.addEventListener('DOMContentLoaded', () => {
     /*
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Limpa mensagens anteriores
             feedbackGestao.textContent = ""
-            feedbackGestao.style.color = "initial"
+            feedbackGestao.style.color = "initial"            
 
             // Cria o objeto Evento com a classe
             const novoEvento = new Evento(
@@ -435,16 +435,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 feedbackGestao.style.color = "green"
                 
                 formGestaoEvento.reset()
+                await renderEventos()
 
                 // dps vai ter função para atualizar o carrossel
-                // atualizarCarrossel(); 
+                // atualizarCarrossel() 
 
             } catch (erro) {
                 console.error(erro);
-                feedbackGestao.textContent = "Erro ao guardar: " + erro.message;
-                feedbackGestao.style.color = "red";
+                feedbackGestao.textContent = "Erro ao guardar: " + erro.message
+                feedbackGestao.style.color = "red"
             }
-        });
+        })
     }
 
     
@@ -462,8 +463,56 @@ async function startApp() {
         //const newEvent = new Evento("Consulta","Análises de rotina","17/04/2026","7:30","Ponta Delgada")
         //const message = await addEventDB(db, newEvent)
         //console.log(message)
+        await renderEventos()
     } catch (error){
         console.error(error)  
     }    
 }
+
 window.addEventListener("load", startApp)
+
+
+async function renderEventos() {
+    const trackDinamico = document.getElementById("track-eventos-dinamico")
+    if (!trackDinamico) return // garante que exista contentor
+
+    try {
+        // retira os eventos da base de dados
+        const eventos = await getEventosDB(db)
+
+        // se o array estiver vazio, mostra mensagem
+        if (eventos.length === 0) {
+            trackDinamico.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem;">Ainda não existem eventos agendados.</p>'
+            return
+        }
+    trackDinamico.innerHTML = '' // limpa o contentor antes de adicionar os eventos
+    eventos.forEach(evento => {
+        const data = new Date(evento.data)
+        const dia = data.getDate()
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+        const mes = meses[data.getMonth()]
+
+        const article = document.createElement("article")
+        article.classList.add("event-card")
+        article.innerHTML = ` 
+        <div class="card-image">
+                    <img src="./media/evento1.png" alt="Imagem do Evento">
+                    <div class="date-badge">
+                        <span class="day">${dia}</span>
+                        <span class="month">${mes}</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h4>${evento.titulo}</h4>
+                    <p class="meta">🕒 ${evento.hora}</p>
+                    <p class="meta">📍 ${evento.local}</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">${evento.descricao}</p>
+                </div>
+        `
+        trackDinamico.appendChild(article) 
+    })
+    } catch (error) {
+        console.error("Erro ao carregar eventos: ", error)
+        trackDinamico.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem; color: red;">Erro ao carregar eventos.</p>'
+    }
+}
