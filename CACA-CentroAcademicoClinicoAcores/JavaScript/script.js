@@ -1,5 +1,5 @@
 import { Evento } from "./evento.js"
-import { startDB, addEventDB, addSubscritorDB, getEventosDB } from "./database.js"
+import { startDB, addEventDB, addSubscritorDB,getEventosDB } from "./database.js"
 let db
 document.addEventListener('DOMContentLoaded', () => {
     /*
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Limpa mensagens anteriores
             feedbackGestao.textContent = ""
-            feedbackGestao.style.color = "initial"            
+            feedbackGestao.style.color = "initial"
 
             // Cria o objeto Evento com a classe
             const novoEvento = new Evento(
@@ -436,16 +436,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 formGestaoEvento.reset()
                 await renderEventos()
-
                 // dps vai ter função para atualizar o carrossel
-                // atualizarCarrossel() 
+                // atualizarCarrossel(); 
 
             } catch (erro) {
                 console.error(erro);
-                feedbackGestao.textContent = "Erro ao guardar: " + erro.message
-                feedbackGestao.style.color = "red"
+                feedbackGestao.textContent = "Erro ao guardar: " + erro.message;
+                feedbackGestao.style.color = "red";
             }
-        })
+        });
     }
 
     
@@ -459,18 +458,13 @@ document.addEventListener('DOMContentLoaded', () => {
 async function startApp() {
     try {
         db = await startDB()
-        console.log("Base de dados pronta")
-        //const newEvent = new Evento("Consulta","Análises de rotina","17/04/2026","7:30","Ponta Delgada")
-        //const message = await addEventDB(db, newEvent)
-        //console.log(message)
+        console.log("Base de dados pronta")        
         await renderEventos()
     } catch (error){
         console.error(error)  
     }    
 }
-
 window.addEventListener("load", startApp)
-
 
 async function renderEventos() {
     const trackDinamico = document.getElementById("track-eventos-dinamico")
@@ -496,6 +490,7 @@ async function renderEventos() {
         article.classList.add("event-card")
         article.innerHTML = ` 
         <div class="card-image">
+                    <!-- Como ainda não temos fotos dinâmicas, usamos uma genérica -->
                     <img src="./media/evento1.png" alt="Imagem do Evento">
                     <div class="date-badge">
                         <span class="day">${dia}</span>
@@ -515,4 +510,4 @@ async function renderEventos() {
         console.error("Erro ao carregar eventos: ", error)
         trackDinamico.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem; color: red;">Erro ao carregar eventos.</p>'
     }
-}
+} 

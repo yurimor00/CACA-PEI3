@@ -14,11 +14,11 @@ export function startDB() {
             if (!db.objectStoreNames.contains("subscritores")) {
                 db.createObjectStore("subscritores", { keyPath: "email" }) // email é o unico id
             }
-        };
+        }
 
         request.onsuccess = (evento) => {
             resolve(evento.target.result) // retorna à bd
-        };
+        }
 
         request.onerror = (evento) => {
             reject("Erro ao abrir a base de dados: " + evento.target.errorCode)
@@ -49,11 +49,10 @@ export function addSubscritorDB(db, subscritor) {
         
         const request = store.add(subscritor) // erro se o email já existir
 
-        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!")
-        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.")
+        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!");
+        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.");
     })
 }
-
 export function getEventosDB(db) {
     return new Promise((resolve, reject) => {
         const transacao = db.transaction(["eventos"], "readonly")
