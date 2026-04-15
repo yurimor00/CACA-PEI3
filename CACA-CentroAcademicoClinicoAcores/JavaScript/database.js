@@ -39,20 +39,6 @@ export function addEventDB(db, evento) {
         request.onerror = () => reject("Erro ao adicionar evento à base de dados.")
     })
 }
-
-
-// add subscritor à base de dados
-export function addSubscritorDB(db, subscritor) {
-    return new Promise((resolve, reject) => {
-        const transacao = db.transaction(["subscritores"], "readwrite")
-        const store = transacao.objectStore("subscritores")
-        
-        const request = store.add(subscritor) // erro se o email já existir
-
-        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!");
-        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.");
-    })
-}
 export function getEventosDB(db) {
     return new Promise((resolve, reject) => {
         const transacao = db.transaction(["eventos"], "readonly")
@@ -86,5 +72,17 @@ export function deleteEventDB(db, id) {
 
         request.onsuccess = () => resolve("Evento removido com sucesso!")
         request.onerror = () => reject("Erro ao remover evento.")
+    })
+}
+//Newsletter  add subscritor à base de dados
+export function addSubscritorDB(db, subscritor) {
+    return new Promise((resolve, reject) => {
+        const transacao = db.transaction(["subscritores"], "readwrite")
+        const store = transacao.objectStore("subscritores")
+        
+        const request = store.add(subscritor) // erro se o email já existir
+
+        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!");
+        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.");
     })
 }

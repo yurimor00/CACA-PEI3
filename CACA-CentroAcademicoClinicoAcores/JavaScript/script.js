@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputGestaoData = document.getElementById("evento-data")
     const inputGestaoHora = document.getElementById("evento-hora")
     const inputGestaoLocal = document.getElementById("evento-local")
+    const inputGestaoImagem = document.getElementById("evento-imagem")
     const feedbackGestao = document.getElementById("gestao-feedback")
     
     //Carousel Constants
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dropdownAssuntoSelected.textContent = "Assunto"
             } catch (erro) {
                 console.error(erro)
-                mensagemFeedback.textContent = erro
+                mensagemFeedback.textContent = erro.message || erro
                 mensagemFeedback.style.color = "orange"
             }
         }
@@ -446,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 eventoEmEdicao.data = inputGestaoData.value
                 eventoEmEdicao.hora = inputGestaoHora.value
                 eventoEmEdicao.local = inputGestaoLocal.value.trim()
+                eventoEmEdicao.imagem = inputGestaoImagem.value.trim()
 
                 mensagem = await updateEventDB(db, eventoEmEdicao)
 
@@ -458,7 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     inputGestaoDescricao.value.trim(),
                     inputGestaoData.value,
                     inputGestaoHora.value,
-                    inputGestaoLocal.value.trim()
+                    inputGestaoLocal.value.trim(),
+                    inputGestaoImagem.value.trim()
                 )
 
                 mensagem = await addEventDB(db, novoEvento)
@@ -524,7 +527,7 @@ async function renderEventos() {
 
             article.innerHTML = `
             <div class="card-image">
-                <img src="./media/evento1.png">
+                <img src="${evento.imagem || './media/evento1.png'}">
                 <div class="date-badge">
                     <span class="day">${dia}</span>
                     <span class="month">${mes}</span>
@@ -570,6 +573,7 @@ window.editarEvento = async function(id) {
     document.getElementById("evento-data").value = evento.data
     document.getElementById("evento-hora").value = evento.hora
     document.getElementById("evento-local").value = evento.local
+    document.getElementById("evento-imagem").value = evento.imagem || ""
 
     eventoEmEdicao = evento
 }
