@@ -644,7 +644,7 @@ window.initMap = function() {
     if (document.querySelector('script[src*="maps.googleapis.com"]')) return;
 
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBhS7gs5WcRbjTV17Vr1T9SFbO9_DJAQAE&libraries=places&callback=initMap&loading=async`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${API.GOOGLE_MAPS_KEY}&libraries=places&callback=initMap&loading=async`;
     script.async = true;
     script.defer = true;
     
