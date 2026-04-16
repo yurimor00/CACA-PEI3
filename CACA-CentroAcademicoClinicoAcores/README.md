@@ -91,5 +91,15 @@ Miguel Matos - 2024111725
 Yuri Moreira - 
 Alexandre Pereira -
 
-Miguel Matos - Adicionou uma nova secçao denominada localização no HTML e usou a API do google maps para mostrar o para da localização 
-da universidade dos açores.
+Miguel Matos - Adicionou uma nova secçao denominada localização no HTML e usou a API do google maps para mostrar a  localização 
+da universidade dos açores. Quando utilizar no site é necessario colocar as suas api pois por motivos de segurança foi necessario criar um ficheiro onde fica escondido as api usando o .gitignore . Para colocar as api basta criar um ficheiro com o nome "API.js" e colocar as api`s como mostra o ficheiro "API.example.js". Assim fica funcional a zona de loalização e de noticias funcionando com APIs.Foi feita tambem parte da organização dos ficheiros e por fiz a criação da função carregarnoticias .
+
+Yuri Moreira - O painel de gestão foi desenhado como uma Janela Flutuante (Modal) escondida. O acesso é feito através de um link no rodapé.
+
+A comunicação com a base de dados (cacaDB) é feita de forma assíncrona, garantindo que a interface do site nunca bloqueia ou fica lenta enquanto os dados são processados.
+A função principal acede à base de dados em modo de leitura e extrai todos os registos guardados. A interface atualiza-se dinamicamente, limpando a lista atual e injetando os novos elementos no painel, mostrando o título, a data, o local e cria os respetivos botões de edição e remoção para cada evento.
+
+Ao clicar em "Editar" num evento, o sistema procura esse registo específico na base de dados e preenche automaticamente todos os campos do formulário com os dados atuais.
+Ao submeter o formulário, o código substitui o registo antigo pelo novo e repõe o painel para o modo normal de adicionar evento.
+
+Imediatamente após qualquer adição, edição ou remoção, o sistema força a atualização automática das interfaces. Isto assegura que a alteração se reflete instantaneamente tanto no carrossel público do site como na lista do painel de administração, sem que o utilizador precise de recarregar a página manualmente.
