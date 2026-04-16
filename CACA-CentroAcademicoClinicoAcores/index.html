@@ -143,7 +143,7 @@
                 <div class="events-carousel-container">
                     <div class="events-mask">
                         <div class="events-track" id="track-eventos-dinamico">
-                            <p id="mensagem-sem-eventos" style="text-align: center; width: 100%; padding: 2rem;">
+                            <p id="mensagem-sem-eventos" class="mensagem-vazia">
                                Não existem eventos agendados no momento. Fique atento às nossas redes sociais para novidades! 
                             </p>
                         </div>
@@ -283,53 +283,66 @@
             </div>
         </div>
         <div class="container footer-bottom">
-            <p>&copy; 2026 Centro Académico Clínico dos Açores. Todos os direitos reservados.</p>
+            <p>&copy; 2026 Centro Académico Clínico dos Açores. Todos os direitos reservados. | <a href="#" id="btn-abrir-admin" class="admin-link">Admin</a></p>
         </div>
     </footer>
     <button id="to-top" class='btn btn-primary' title="Para o Topo">Voltar ao Topo</button>
 <!-- botao de admin -->
-<button id="admin-toggle" class="btn btn-primary" style="margin:20px;">
-    Administração
-</button>
-
-<!-- Secção escondida inicialmente -->
-<section id="gestao-eventos" style="display:none; padding: 2rem; background: var(--bg-color); border: 1px solid var(--accent-color);">
-    <h2>Painel de Gestão - Adicionar Novo Evento</h2>
-
-    <form id="form-gestao-evento">
-        <div>
-            <label>Título:</label>
-            <input type="text" id="evento-titulo" required>
-        </div>
-
-        <div>
-            <label>Descrição:</label>
-            <textarea id="evento-descricao" required></textarea>
-        </div>
-
-        <div>
-            <label>Data:</label>
-            <input type="date" id="evento-data" required>
-        </div>
-
-        <div>
-            <label>Hora:</label>
-            <input type="time" id="evento-hora" required>
-        </div>
-
-        <div>
-            <label>Local:</label>
-            <input type="text" id="evento-local" required>
+<div id="modal-admin" class="admin-modal">
+    <div class="admin-modal-content">
+        <div class="admin-header">
+            <h2 id="admin-titulo">Painel de Gestão</h2>
+            <span class="close-admin" id="fechar-admin" title="Fechar Painel">&times;</span>
         </div>
         
-        <input type="text" id="evento-imagem" placeholder="URL da imagem">
+        <p class="admin-subtitle">Adicionar ou Editar Evento</p>
+        
+        <form id="form-gestao-evento" class="admin-form">
+            <div class="admin-form-group">
+                <label for="evento-titulo">Título do Evento:</label>
+                <input type="text" id="evento-titulo" required>
+            </div>
+            
+            <div class="admin-form-row">
+                <div class="admin-form-group">
+                    <label for="evento-data">Data:</label>
+                    <input type="date" id="evento-data" required>
+                </div>
+                <div class="admin-form-group">
+                    <label for="evento-hora">Hora:</label>
+                    <input type="time" id="evento-hora" required>
+                </div>
+            </div>
 
-        <button type="submit">Guardar Evento</button>
-    </form>
+            <div class="admin-form-group">
+                <label for="evento-local">Localização (Cidade):</label>
+                <input type="text" id="evento-local" placeholder="Ex: Ponta Delgada" required>
+            </div>
 
-    <p id="gestao-feedback"></p>
-    </section>
+            <div class="admin-form-group">
+                <label for="evento-imagem">URL da Capa:</label>
+                <input type="text" id="evento-imagem" placeholder="Ex: ./media/evento1.png">
+            </div>
 
+            <div class="admin-form-group">
+                <label for="evento-descricao">Descrição:</label>
+                <textarea id="evento-descricao" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" id="btn-submit-admin" class="btn btn-primary admin-submit-btn">Guardar Evento</button>
+            <button type="button" id="btn-cancelar-edicao" class="btn admin-cancel-btn" style="display:none;">Cancelar Edição</button>
+        </form>
+        
+        <p id="gestao-feedback" class="admin-feedback"></p>
+
+        <div class="admin-management-list">
+            <hr>
+            <h3>Eventos Atuais na Base de Dados</h3>
+            <div id="lista-eventos-admin">
+                </div>
+        </div>
+    </div>
+</div>
     <script src="./JavaScript/API.js" ></script>
     <script src="./JavaScript/script.js" type="module"></script>
     <script src="./JavaScript/graficos.js" type="module"></script>

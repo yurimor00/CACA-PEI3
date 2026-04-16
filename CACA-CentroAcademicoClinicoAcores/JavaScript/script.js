@@ -89,17 +89,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventNextBtn = document.getElementById('event-next')
 
     // ADMIN TOGGLE
-    const adminBtn = document.getElementById("admin-toggle")
-    const secaoAdmin = document.getElementById("gestao-eventos")
-
-    adminBtn.addEventListener("click", () => {
-        if (secaoAdmin.style.display === "none") {
-            secaoAdmin.style.display = "block"
-        } else {
-            secaoAdmin.style.display = "none"
-        }
-    })
-
+    const modalAdmin = document.getElementById("modal-admin")
+    const btnAbrirAdmin = document.getElementById("btn-abrir-admin")
+    const fecharAdmin = document.getElementById("fechar-admin")
+    const btnCancelar = document.getElementById("btn-cancelar-edicao")
+    
+    if (btnAbrirAdmin) {
+        btnAbrirAdmin.addEventListener("click", (e) => {
+            e.preventDefault()
+            modalAdmin.style.display = "flex"
+            renderListaAdmin()
+        })
+    }
+    const fecharPainel = () => {
+        modalAdmin.style.display = "none";
+        eventoEmEdicao = null;
+        formGestaoEvento.reset();
+        document.getElementById("admin-titulo").textContent = "Painel de Gestão"
+        document.getElementById("btn-submit-admin").textContent = "Guardar Evento"
+        btnCancelar.style.display = "none"
+    }
+    fecharAdmin?.addEventListener("click", fecharPainel)
+    btnCancelar?.addEventListener("click", fecharPainel)
+    window.addEventListener("click", (e) => { if (e.target === modalAdmin) fecharPainel() })
     /*
     STATE VARIABLES
     */
@@ -347,10 +359,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Eventos Carousel ---
     // Initializes the specific logic for the Events carousel (sliding cards based on width).
-    function initEventCarousel() {
+    window.initEventCarousel = function() {
+        const eventTrack = document.querySelector('.events-track')
+        const eventWrapper = document.querySelector('.events-mask')
+        const eventNextBtn = document.getElementById('event-next')
+        const eventPrevBtn = document.getElementById('event-prev')
+        const eventCards = document.querySelectorAll('.event-card')
+
         if (!eventTrack || eventCards.length === 0) return
 
-        const eventWrapper = document.querySelector('.events-mask')
         let eventIndex = 0
 
         // Updates the visual position of the carousel based on the current index and card width
@@ -359,11 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = window.getComputedStyle(eventTrack)
             const gap = parseFloat(style.gap) || 0
             const slideWidth = cardWidth + gap
-
-            const trackWidth = eventTrack.scrollWidth
-            const containerWidth = eventWrapper.offsetWidth
-            const maxTranslate = Math.max(0, trackWidth - containerWidth)
-            
+            const maxTranslate = Math.max(0, eventTrack.scrollWidth - eventWrapper.offsetWidth) 
             let translateX = eventIndex * slideWidth
             
             // Clamp translation to avoid dead space at the end
@@ -374,25 +387,24 @@ document.addEventListener('DOMContentLoaded', () => {
             eventTrack.style.transform = `translateX(-${translateX}px)`
         }
 
+        const newNextBtn = eventNextBtn.cloneNode(true)
+        eventNextBtn.parentNode.replaceChild(newNextBtn, eventNextBtn)
+        const newPrevBtn = eventPrevBtn.cloneNode(true)
+        eventPrevBtn.parentNode.replaceChild(newPrevBtn, eventPrevBtn)
         // Event listener for the "Next" button: calculates boundaries and advances if possible
-        eventNextBtn.addEventListener('click', () => {
+        newNextBtn.addEventListener('click', () => {
             const cardWidth = eventCards[0].offsetWidth
             const style = window.getComputedStyle(eventTrack)
             const gap = parseFloat(style.gap) || 0
-            const slideWidth = cardWidth + gap
-            
-            const trackWidth = eventTrack.scrollWidth
-            const containerWidth = eventWrapper.offsetWidth
-            const maxTranslate = Math.max(0, trackWidth - containerWidth)
+            const maxTranslate = Math.max(0, eventTrack.scrollWidth - eventWrapper.offsetWidth)
 
-            if (eventIndex * slideWidth < maxTranslate) {
+            if (eventIndex * (cardWidth + gap) < maxTranslate) {
                 eventIndex++
                 updateEventCarousel()
             }
         })
-
         // Event listener for the "Previous" button: decreases index if not at the start
-        eventPrevBtn.addEventListener('click', () => {
+        newPrevBtn.addEventListener('click', () => {
             if (eventIndex > 0) eventIndex--
             updateEventCarousel()
         })
@@ -474,6 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formGestaoEvento.reset()
 
             await renderEventos()
+            await renderListaAdmin()
 
         } catch (erro) {
             console.error(erro)
@@ -556,11 +569,39 @@ async function renderEventos() {
 
             trackDinamico.appendChild(article)
         }
+        initEventCarousel()
         } catch (error) {
         console.error(error)
     }
 }
+window.renderListaAdmin = async function() {
+    const lista = document.getElementById("lista-eventos-admin")
+    if (!lista) return
 
+    const eventos = await getEventosDB(db)
+    lista.innerHTML = ""
+
+    if (eventos.length === 0) {
+        lista.innerHTML = "<p style='padding:1rem; color:grey;'>A base de dados está vazia.</p>"
+        return;
+    }
+
+    eventos.forEach(ev => {
+        const item = document.createElement("div")
+        item.style = "display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: rgba(0,0,0,0.02); margin-bottom: 5px; border-radius: 5px;"
+        item.innerHTML = `
+            <div>
+                <strong style="color: var(--primary-color);">${ev.titulo}</strong>
+                <br><small>${ev.data} em ${ev.local}</small>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="editarEvento(${ev.id})" style="background: var(--accent-color1); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Editar</button>
+                <button onclick="removerEvento(${ev.id})" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Remover</button>
+            </div>
+        `
+        lista.appendChild(item)
+    })
+}
 /*EDITAR EVENTO */
 window.editarEvento = async function(id) {
     const eventos = await getEventosDB(db)
@@ -576,23 +617,22 @@ window.editarEvento = async function(id) {
     document.getElementById("evento-imagem").value = evento.imagem || ""
 
     eventoEmEdicao = evento
+    document.getElementById("admin-titulo").textContent = "Editar Evento"
+    document.getElementById("btn-submit-admin").textContent = "Guardar Alterações";
+    document.getElementById("btn-cancelar-edicao").style.display = "block"
 }
 /*Remover EVENTO */
 window.removerEvento = async function(id) {
     if (!confirm("Apagar evento?")) return
-
-    try {
-        await deleteEventDB(db, id)
-        await renderEventos()
-    } catch (erro) {
-        console.error(erro)
-    }
+    await deleteEventDB(db, id)
+    await renderEventos()
+    await renderListaAdmin()
 }
 
 async function obterPrevisaoEvento(local, dataEvento) {
 
     const localizacao = coordenadasAcores[local]
-    if (!localizacao) return "🌤️ (Local não mapeado)"
+    if (!localizacao) return "🌤️"
 
     const hoje = new Date()
     const dataEv = new Date(dataEvento)

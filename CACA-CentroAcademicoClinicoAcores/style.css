@@ -848,6 +848,94 @@ ul {
     border-radius: 3px;
     transition: all 0.3s ease; 
 }
+/* Modo Admin */
+.admin-modal {
+    display: none; /* escondido*/
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-modal-content {
+    background-color: var(--bg-color);
+    padding: 2.5rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 2px solid var(--primary-color);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-subtitle {
+    color: var(--accent-color1);
+    margin-bottom: 1.5rem;
+}
+
+.close-admin {
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-admin:hover { color: red; }
+
+/* Formulário */
+.admin-form { display: flex; flex-direction: column; gap: 1rem; }
+.admin-form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.admin-form-row { display: flex; gap: 1rem; }
+.admin-form-row > .admin-form-group { flex: 1; }
+
+.admin-form input, .admin-form textarea {
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-color);
+}
+
+.admin-submit-btn { width: 100%; margin-top: 1rem; }
+.admin-cancel-btn { background: #eee; color: #333; width: 100%; margin-top: 0.5rem; }
+
+/* Editar/Remover */
+.admin-management-list { margin-top: 2rem; }
+.admin-management-list h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+
+.admin-event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(0,0,0,0.05);
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+}
+
+.admin-item-actions { display: flex; gap: 0.5rem; }
+.btn-edit-small { background: var(--accent-color1); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.btn-delete-small { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.admin-link { color: grey; text-decoration: none; font-size: 0.9rem; }
+.admin-link:hover { color: var(--accent-color); }
+.mensagem-vazia { text-align: center; width: 100%; padding: 2rem; color: var(--grey); }
+.admin-feedback { text-align: center; margin-top: 1rem; font-weight: bold; }
+
 /* --- Media Queries (Mobile/Tablets) --- */
 @media (max-width: 768px) {
 
