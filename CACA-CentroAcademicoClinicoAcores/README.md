@@ -86,5 +86,10 @@ Outras Acessibilidades (Preferencias):
     media queries (reduced motion)
         Verifica se o utilizador tem reduced motion ativado e "desativa" as transições
 
+#-----------------------------------------------------------------------------------------------------------------------------------------
+Miguel Matos - 2024111725
+Yuri Moreira - 
+Alexandre Pereira -
 
-
+Miguel Matos - Adicionou uma nova secçao denominada localização no HTML e usou a API do google maps para mostrar o para da localização 
+da universidade dos açores.
