@@ -82,7 +82,7 @@ export function addSubscritorDB(db, subscritor) {
         
         const request = store.add(subscritor) // erro se o email já existir
 
-        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!");
-        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.");
+        request.onsuccess = () => resolve("Subscritor adicionado com sucesso!")
+        request.onerror = () => reject("Este e-mail já se encontra registado na nossa Newsletter.")
     })
 }

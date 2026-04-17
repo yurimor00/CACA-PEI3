@@ -1,14 +1,9 @@
 import { Evento } from "./evento.js"
 import { startDB, addEventDB, addSubscritorDB,getEventosDB, updateEventDB, deleteEventDB } from "./database.js"
+import { obterPrevisaoEvento } from "./meteorologia.js"
 let db
 let eventoEmEdicao = null
-const coordenadasAcores = {
-    "Ponta Delgada": { lat: 37.7412, lon: -25.6756 },
-    "Angra do Heroísmo": { lat: 38.6533, lon: -27.2178 },
-    "Horta": { lat: 38.5333, lon: -28.6333 },
-    "Ribeira Grande": { lat: 37.8167, lon: -25.5167 },
-    "Lagoa": { lat: 37.7500, lon: -25.5667 }
-}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     /*
@@ -627,39 +622,4 @@ window.removerEvento = async function(id) {
     await deleteEventDB(db, id)
     await renderEventos()
     await renderListaAdmin()
-}
-
-async function obterPrevisaoEvento(local, dataEvento) {
-
-    const localizacao = coordenadasAcores[local]
-    if (!localizacao) return "🌤️"
-
-    const hoje = new Date()
-    const dataEv = new Date(dataEvento)
-    const diferencaDias = Math.ceil((dataEv - hoje) / (1000 * 60 * 60 * 24))
-
-    if (diferencaDias < 0 || diferencaDias > 14) {
-        return "📅 (Previsão disponível 14 dias antes)"
-    }
-
-    try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${localizacao.lat}&longitude=${localizacao.lon}&daily=temperature_2m_max,weathercode&start_date=${dataEvento}&end_date=${dataEvento}&timezone=auto`
-        
-        const resposta = await fetch(url)
-        const dados = await resposta.json()
-        
-        if (!dados.daily) return "🌤️"
-
-        const tempMax = dados.daily.temperature_2m_max[0]
-        const codigoTempo = dados.daily.weathercode[0]
-
-        // Tradução simples de códigos de tempo para emojis
-        let emoji = "☁️"
-        if (codigoTempo <= 3) emoji = "☀️"
-        else if (codigoTempo >= 51 && codigoTempo <= 67) emoji = "🌧️"
-
-        return `${emoji} ${tempMax}°C`
-    } catch (erro) {
-        return "🌤️"
-    }
 }
