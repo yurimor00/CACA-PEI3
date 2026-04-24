@@ -1,6 +1,6 @@
 export async function obterPrevisaoEvento(local, dataEvento) {
 
-    if (!local || local.trim() === "") return "🌤️"
+    if (!local || local.trim() === "") return "wi wi-day-cloudy";
     try {
         const urlGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(local)}&count=1&language=pt`
         const respostaGeo = await fetch(urlGeocoding)
@@ -20,15 +20,15 @@ export async function obterPrevisaoEvento(local, dataEvento) {
         const urlMeteo = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,weathercode&start_date=${dataEvento}&end_date=${dataEvento}&timezone=auto`     
         const respostaMeteo = await fetch(urlMeteo)
         const dadosMeteo = await respostaMeteo.json()        
-        if (!dadosMeteo.daily) return "🌤️"
+        if (!dadosMeteo.daily) return "wi wi-day-cloudy";
         const tempMax = dadosMeteo.daily.temperature_2m_max[0]
         const codigo = dadosMeteo.daily.weathercode[0]
 
-        let emoji = "☁️"
-        if (codigo <= 3) emoji = "☀️"
-        else if (codigo >= 51 && codigo <= 67) emoji = "🌧️"
-        else if (codigo >= 71 && codigo <= 77) emoji = "❄️"
-        return `${emoji} ${Math.round(tempMax)}°C`
+        let emoji = "wi wi-cloud";
+        if (codigo <= 3) emoji = "wi wi-day-sunny";
+        else if (codigo >= 51 && codigo <= 67) emoji = "wi wi-rain";
+        else if (codigo >= 71 && codigo <= 77) emoji = "wi-snow";
+        return `<i class="wi ${emoji}"></i> ${Math.round(tempMax)}°C`;
     } catch (error) {
         console.error("Erro ao obter previsão:", error)
         return "Previsão indisponível"
