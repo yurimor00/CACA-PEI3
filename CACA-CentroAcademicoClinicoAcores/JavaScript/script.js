@@ -517,13 +517,20 @@ async function renderEventos() {
     try {
         // retira os eventos da base de dados
         const eventos = await getEventosDB(db)
-
+        // limpar 
+        trackDinamico.innerHTML = ""
         // se o array estiver vazio, mostra mensagem
         if (eventos.length === 0) {
-            trackDinamico.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem;">Ainda não existem eventos agendados.</p>'
+            const mensagem = document.createElement("p")
+            mensagem.style.textAlign = "center"
+            mensagem.style.width = "100%"
+            mensagem.style.padding = "2rem"
+            mensagem.textContent = "Ainda não existem eventos agendados."
+
+            trackDinamico.appendChild(mensagem)
             return
         }
-    trackDinamico.innerHTML = '' // limpa o contentor antes de adicionar os eventos
+    
     for (const evento of eventos) {
         const data = new Date(evento.data)
             const dia = data.getDate()
@@ -533,37 +540,85 @@ async function renderEventos() {
             const article = document.createElement("article")
             article.classList.add("event-card")
 
-            article.innerHTML = `
-            <div class="card-image">
-                <img src="${evento.imagem || './media/evento1.png'}">
-                <div class="date-badge">
-                    <span class="day">${dia}</span>
-                    <span class="month">${mes}</span>
-                </div>
-            </div>
+            // EVENTO
+            const cardImage = document.createElement("div")
+            cardImage.classList.add("card-image")
 
-            <div class="card-content">
-                <h4>${evento.titulo}</h4>
-                <p class="meta">🕒 ${evento.hora}</p>
-                <p class="meta">📍 ${evento.local}</p>
-                <p class="meta">Previsão: ${previsao}</p>
-                <p>${evento.descricao}</p>
+            const img = document.createElement("img")
+            img.src = evento.imagem || "./media/evento1.png"
 
-                <div class="admin-buttons" style="display:none;">
-                    <button onclick="editarEvento(${evento.id})">Editar</button>
-                    <button onclick="removerEvento(${evento.id})">Remover</button>
-                </div>
-            </div>
-            `
+            const dateBadge = document.createElement("div")
+            dateBadge.classList.add("date-badge")
 
-            // MOSTRAR BOTÕES AO CLICAR
+            const spanDia = document.createElement("span")
+            spanDia.classList.add("day")
+            spanDia.textContent = dia
+
+            const spanMes = document.createElement("span")
+            spanMes.classList.add("month")
+            spanMes.textContent = mes
+
+            dateBadge.appendChild(spanDia)
+            dateBadge.appendChild(spanMes)
+
+            cardImage.appendChild(img)
+            cardImage.appendChild(dateBadge)
+
+            // INTERNO EVENTO CONTEUDO 
+            const cardContent = document.createElement("div")
+            cardContent.classList.add("card-content")
+
+            const titulo = document.createElement("h4")
+            titulo.textContent = evento.titulo
+
+            const hora = document.createElement("p")
+            hora.classList.add("meta")
+            hora.textContent = `🕒 ${evento.hora}`
+
+            const local = document.createElement("p")
+            local.classList.add("meta")
+            local.textContent = `📍 ${evento.local}`
+
+            const previsaoTexto = document.createElement("p")
+            previsaoTexto.classList.add("meta")
+            previsaoTexto.innerHTML = `Previsão: ${previsao}`
+
+            const descricao = document.createElement("p")
+            descricao.textContent = evento.descricao
+
+            const adminButtons = document.createElement("div")
+            adminButtons.classList.add("admin-buttons")
+            adminButtons.style.display = "none"
+
+            const btnEditar = document.createElement("button")
+            btnEditar.textContent = "Editar"
+            btnEditar.onclick = () => editarEvento(evento.id)
+
+            const btnRemover = document.createElement("button")
+            btnRemover.textContent = "Remover"
+            btnRemover.onclick = () => removerEvento(evento.id)
+
+            adminButtons.appendChild(btnEditar)
+            adminButtons.appendChild(btnRemover)
+
+            cardContent.appendChild(titulo)
+            cardContent.appendChild(hora)
+            cardContent.appendChild(local)
+            cardContent.appendChild(previsaoTexto)
+            cardContent.appendChild(descricao)
+            cardContent.appendChild(adminButtons)
+
+            article.appendChild(cardImage)
+            article.appendChild(cardContent)
+
             article.addEventListener("click", () => {
-                const btns = article.querySelector(".admin-buttons")
-                btns.style.display = btns.style.display === "none" ? "block" : "none"
+                adminButtons.style.display =
+                    adminButtons.style.display === "none" ? "block" : "none"
             })
 
             trackDinamico.appendChild(article)
         }
+
         initEventCarousel()
         } catch (error) {
         console.error(error)
@@ -583,19 +638,46 @@ window.renderListaAdmin = async function() {
 
     eventos.forEach(ev => {
         const item = document.createElement("div")
-        item.style = "display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: rgba(0,0,0,0.02); margin-bottom: 5px; border-radius: 5px;"
-        item.innerHTML = `
-            <div>
-                <strong style="color: var(--primary-color);">${ev.titulo}</strong>
-                <br><small>${ev.data} em ${ev.local}</small>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <button onclick="editarEvento(${ev.id})" style="background: var(--accent-color1); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Editar</button>
-                <button onclick="removerEvento(${ev.id})" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Remover</button>
-            </div>
-        `
-        lista.appendChild(item)
-    })
+         item.style = "display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: rgba(0,0,0,0.02); margin-bottom: 5px; border-radius: 5px;"
+
+    // evento
+    const info = document.createElement("div")
+
+    const titulo = document.createElement("strong")
+    titulo.style.color = "var(--primary-color)"
+    titulo.textContent = ev.titulo
+
+    const quebraLinha = document.createElement("br")
+
+    const detalhes = document.createElement("small")
+    detalhes.textContent = `${ev.data} em ${ev.local}`
+
+    info.appendChild(titulo)
+    info.appendChild(quebraLinha)
+    info.appendChild(detalhes)
+
+    // crud eventos
+    const botoes = document.createElement("div")
+    botoes.style = "display: flex; gap: 5px;"
+
+    const btnEditar = document.createElement("button")
+    btnEditar.textContent = "Editar"
+    btnEditar.onclick = () => editarEvento(ev.id)
+    btnEditar.style = "background: var(--accent-color1); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;"
+
+    const btnRemover = document.createElement("button")
+    btnRemover.textContent = "Remover"
+    btnRemover.onclick = () => removerEvento(ev.id)
+    btnRemover.style = "background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;"
+
+    botoes.appendChild(btnEditar)
+    botoes.appendChild(btnRemover)
+
+    item.appendChild(info)
+    item.appendChild(botoes)
+
+    lista.appendChild(item)
+})
 }
 /*EDITAR EVENTO */
 window.editarEvento = async function(id) {
